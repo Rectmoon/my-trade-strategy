@@ -1,0 +1,109 @@
+//@version=4
+// rsi candles
+study(title="我的策略", overlay = true, shorttitle="show time")
+src = close, len = input(14, minval=1, title="Length")
+up = rma(max(change(src), 0), len)
+down = rma(-min(change(src), 0), len)
+rsi = down == 0 ? 100 : up == 0 ? 0 : 100 - (100 / (1 + up / down))
+
+//coloring method below
+src1 = close, len1 = input(70, minval=1, title="UpLevel")
+src2 = close, len2 = input(30, minval=1, title="DownLevel")
+isup() => rsi > len1
+isdown() => rsi < len2
+barcolor(isup() ? color.green : isdown() ? color.red : na )
+
+
+// ema 均线
+// 输入参数
+ema1_length = input(6, title="EMA1长度")
+ema2_length = input(13, title="EMA2长度")
+ema3_length = input(24, title="EMA3长度")
+ema4_length = input(52, title="EMA4长度")
+ema5_length = input(103, title="EMA5长度")
+ema6_length = input(144, title="EMA6长度")
+ema7_length = input(169, title="EMA7长度")
+ema8_length = input(288, title="EMA8长度")
+ema9_length = input(338, title="EMA9长度")
+
+
+// 计算EMA均线
+ema1 = ema(close, ema1_length)
+ema2 = ema(close, ema2_length)
+ema3 = ema(close, ema3_length)
+ema4 = ema(close, ema4_length)
+ema5 = ema(close, ema5_length)
+ema6 = ema(close, ema6_length)
+ema7 = ema(close, ema7_length)
+ema8 = ema(close, ema8_length)
+ema9 = ema(close, ema9_length)
+
+
+// 绘制EMA均线
+plot(ema1, title="EMA1", color=color.blue, linewidth=2)
+plot(ema2, title="EMA2", color=color.orange, linewidth=2)
+plot(ema3, title="EMA3", color=color.green, linewidth=2)
+plot(ema4, title="EMA4", color=color.purple, linewidth=2)
+plot(ema5, title="EMA5", color=color.red, linewidth=2)
+plot(ema6, title="EMA6", color=color.yellow, linewidth=2)
+plot(ema7, title="EMA7", color=color.gray, linewidth=2)
+plot(ema8, title="EMA8", color=color.teal, linewidth=2)
+plot(ema9, title="EMA9", color=color.white, linewidth=2)
+
+
+
+// vwap
+// 输入参数
+vwapLength = input(14, title="VWAP周期", minval=1)
+
+// VWAP计算函数
+vwapFunc(vwapLength) =>
+    sum = 0.0
+    sumVolume = 0.0
+    for i = 0 to vwapLength - 1
+        sum := sum + close[i] * volume[i]
+        sumVolume := sumVolume + volume[i]
+    sum / sumVolume
+
+// 计算VWAP
+vwap = vwapFunc(vwapLength)
+
+// 绘制VWAP线
+plot(vwap, color=color.blue, title="VWAP")
+
+// 显示周期选择
+label.new(x=bar_index, y=high, text=tostring(vwapLength) + " 周期", color=color.red, textcolor=color.white, xloc=xloc.bar_time, size=size.small)
+
+
+// 布林带
+
+// 输入参数
+bollingerLength = input(20, title="布林带周期")
+bollingerSrc = input(close, title="价格来源")
+mult = input(2.0, title="布林带倍数")
+smaLength = input(20, title="SMA周期")
+threshold = input(1.0, title="挤压阈值")
+
+// 计算布林带中轨
+basis = sma(bollingerSrc, bollingerLength)
+
+// 计算布林带
+dev = mult * stdev(bollingerSrc, bollingerLength)
+upper = basis + dev
+lower = basis - dev
+
+// 计算挤压指标
+sma1 = sma(bollingerSrc, smaLength)
+sma2 = sma(bollingerSrc, smaLength * 2)
+sqzOn = (sma1 > sma2) and (dev < threshold)
+
+// 绘制布林带中轨
+plot(basis, color=color.purple, title="中轨")
+
+// 绘制布林带上轨和下轨
+plot(upper, color=color.blue, title="上轨")
+plot(lower, color=color.red, title="下轨")
+
+// 绘制挤压信号矩形区间
+plotshape(sqzOn ? 1 : na, style=shape.triangleup, location=location.belowbar, color=color.green, size=size.small, title="Squeeze")
+plotshape(sqzOn ? 1 : na, style=shape.triangleup, location=location.abovebar, color=color.green, size=size.small, title="Squeeze Range", transp=50)
