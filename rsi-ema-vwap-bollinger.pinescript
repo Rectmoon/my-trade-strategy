@@ -107,3 +107,34 @@ plot(lower, color=color.red, title="下轨")
 // 绘制挤压信号矩形区间
 plotshape(sqzOn ? 1 : na, style=shape.triangleup, location=location.belowbar, color=color.green, size=size.small, title="Squeeze")
 plotshape(sqzOn ? 1 : na, style=shape.triangleup, location=location.abovebar, color=color.green, size=size.small, title="Squeeze Range", transp=50)
+
+
+
+
+// 抵扣价
+e0=ema(close,6)
+e1=ema(close,13)
+e2=ema(close,24)
+e3=ema(close,52)
+e4=ema(close,103)
+
+plot(e0,"ema6",color=color.green)
+plot(e1,"ema13",color=color.purple)
+plot(e2,"ema24",color=color.red)
+plot(e3,"ema52",color=color.orange)
+plot(e4,"ema103",color=color.blue)
+
+cond=barstate.islast
+moveBar=input(0)
+
+x6=input(6)+moveBar
+x13=input(13)+moveBar
+x24=input(24)+moveBar
+x52=input(52)+moveBar
+x103=input(103)+moveBar
+
+plot(cond?low[6]:na,color=color.green,linewidth=5,offset=-x6,style=plot.style_circles,transp=0)
+plot(cond?low[13]:na,color=color.purple,linewidth=5,offset=-x13,style=plot.style_circles,transp=0)
+plot(cond?low[24]:na,color=color.red,linewidth=5,offset=-x24,style=plot.style_circles,transp=0)
+plot(cond?low[52]:na,color=color.orange,linewidth=5,offset=-x52,style=plot.style_circles,transp=0)
+plot(cond?low[103]:na,color=color.blue,linewidth=5,offset=-x103,style=plot.style_circles,transp=0)
